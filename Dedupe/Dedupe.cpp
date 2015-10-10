@@ -18,7 +18,6 @@
 typedef struct _finddata_t FileAttr;
 
 typedef struct fileAttrP {
-	//FileAttr attr;
 	char path[MAX_PATH];
 	__int64 hash;
 	__int64 size;
@@ -37,7 +36,6 @@ int getHashIndex(__int64 size) {
 
 FileAttrP* create_fileAttr(FileAttr *c_file, char *dir) {
 	FileAttrP *p = (FileAttrP *)malloc(sizeof(FileAttrP));
-	//memcpy(&p->attr, c_file, sizeof(FileAttr));
 	p->next = NULL;
 	sprintf(p->path, "%s\\%s", dir, c_file->name);
 	p->hash = 0;
@@ -221,7 +219,7 @@ void traverse_dir(char *dir, FileAttrP **ht) {
 
 int main()
 {
-	char   path[MAX_PATH] = "C:\\Users\\xiaoqin\\Google Drive";
+	char path[MAX_PATH];
 	printf("please enter the directory (up to 512 characters) to inspect\n");
 	scanf("%s", path);
 
@@ -244,6 +242,5 @@ int main()
 	printf(" total number of duplicates: %I64d, space occupied: %f \n", num_dup, (float)(savedSpace >> 20) / 1024);
 
 	clean_ht(ht, HashTableSize);
-
 }
 
