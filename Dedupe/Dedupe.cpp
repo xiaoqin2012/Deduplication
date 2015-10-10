@@ -1,8 +1,6 @@
 // Dedupe.cpp : Defines the entry point for the console application.
 //
 #include "stdafx.h"
-#include "dedupe.h"
-
 #include <io.h>
 #include <time.h>
 #include <direct.h>
