@@ -10,7 +10,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #define HashTableSize 1000
-#define BUF_SIZE (2<<10)
+#define BUF_SIZE (1<<12)
 #define MAX_PATH 512
 
 typedef struct _finddata_t FileAttr;
@@ -34,6 +34,10 @@ int getHashIndex(__int64 size) {
 
 FileAttrP* create_fileAttr(FileAttr *c_file, char *dir) {
 	FileAttrP *p = (FileAttrP *)malloc(sizeof(FileAttrP));
+
+	if (p == NULL) 
+		exit(errno);
+
 	p->next = NULL;
 	sprintf(p->path, "%s\\%s", dir, c_file->name);
 	p->hash = 0;
@@ -45,8 +49,11 @@ void free_fileAttrP(FileAttrP *p) {
 	free(p);
 }
 
-void insert_ht(FileAttrP **ht, FileAttr *c_file, char *dir) {	
+void insert_ht(FileAttrP **ht, FileAttr *c_file, char *dir) {
 	FileAttrP *p = create_fileAttr(c_file, dir);
+
+	if (p == NULL) return;
+
 	int index = getHashIndex(p->size);
 	p->next = ht[index];
 	ht[index] = p;
@@ -94,6 +101,7 @@ bool compare_raw_files(FileAttrP *file1, FileAttrP *file2) {
 
 	if ((f1 = fopen(file1->path, "r")) == NULL) {
 		printf("could not open file1 %s \n", (char *)file1->path);
+		perror("Error: ");
 		return false;
 	}
 
@@ -194,13 +202,12 @@ void traverse_dir(char *dir, FileAttrP **ht) {
 	hFile = _findfirst("*.*", &c_file);
 	bool next = hFile;
 	while (next) {
-		if (strcmp(c_file.name, ".") && strcmp(c_file.name, "..")) {
+		if (strcmp(c_file.name, ".") && strcmp(c_file.name, "..") &&
+			(strlen(dir) + strlen(c_file.name) < MAX_PATH)) {
 			if (c_file.attrib & _A_SUBDIR) {
 				char new_path[MAX_PATH];
-				if (strlen(dir) + strlen(c_file.name) < MAX_PATH) {
 					sprintf(new_path, "%s\\%s", dir, c_file.name);
-					traverse_dir(new_path, ht);
-				}
+					traverse_dir(new_path, ht);				
 			}
 			else {
 				insert_ht(ht, &c_file, dir);
